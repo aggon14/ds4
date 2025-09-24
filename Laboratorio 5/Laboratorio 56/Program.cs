@@ -16,7 +16,7 @@ class Program
 
             {"Francia", "Paris"},
 
-            {"España", "Madrid"},
+            {"España", "Madrid"},   
 
             {"Italia", "Roma"}
 
