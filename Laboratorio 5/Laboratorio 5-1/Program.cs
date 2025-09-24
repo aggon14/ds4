@@ -18,7 +18,7 @@ class Program
 
     public void Imprimir()
     {
-        Console.Write("Los 5 sueldos de los operarios \n");
+        Console.Write("Los cinco sueldos de los operarios \n");
         for (int f = 1; f <= 5; f++)
         {
             Console.Write("[" + sueldos[f] + "] ");

@@ -4,7 +4,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        string[] frutas = { "manzana", "plátano", "naranja" };
+        string[] frutas = { "manzana", "plaatano", "naranja" };
 
         foreach (string fruta in frutas)
         {

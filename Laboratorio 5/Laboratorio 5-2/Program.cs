@@ -11,7 +11,7 @@ class Program
         {
             for (int c = 0; c < 4; c++)
             {
-                Console.Write("Ingrese posición [" + (f + 1) + ", " + (c + 1) + "]: ");
+                Console.Write("Ingrese posicion [" + (f + 1) + ", " + (c + 1) + "]: ");
                 string linea;
                 linea = Console.ReadLine();
                 mat[f, c] = int.Parse(linea);
