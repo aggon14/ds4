@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Proyecto_1
 {
-    internal class Division
+    public class Division
     {
         public double num1;
         public double num2;

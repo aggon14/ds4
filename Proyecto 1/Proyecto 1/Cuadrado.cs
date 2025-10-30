@@ -6,20 +6,18 @@ using System.Threading.Tasks;
 
 namespace Proyecto_1
 {
-    public class Multiplicacion
+    public class Cuadrado
     {
         public double num1;
-        public double num2;
 
-        public Multiplicacion(double num1, double num2)
+        public Cuadrado(double numero)
         {
-            this.num1 = num1;
-            this.num2 = num2;
+            this.num1 = numero;
         }
 
         public double Operacion()
         {
-            return num1 * num2;
+            return num1 * num1;
         }
     }
 }

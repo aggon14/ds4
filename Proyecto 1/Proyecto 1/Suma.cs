@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Proyecto_1
 {
-    internal class Suma
+    public class Suma
     {
         public double num1;
         public double num2;

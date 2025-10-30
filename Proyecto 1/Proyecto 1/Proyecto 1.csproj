@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cuadrado.cs" />
     <Compile Include="Division.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -56,6 +57,7 @@
     <Compile Include="Multiplicacion.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Raiz.cs" />
     <Compile Include="Resta.cs" />
     <Compile Include="Suma.cs" />
     <EmbeddedResource Include="Form1.resx">

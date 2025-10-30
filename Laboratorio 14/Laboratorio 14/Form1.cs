@@ -14,7 +14,7 @@ namespace Laboratorio_14
 {
     public partial class frmnProductos : Form
     {
-        string connectionString = @"Server=. \sqlexpress;Database=productos;Trusted_Connection=True;";
+        string connectionString = @"Server=.\sqlexpress;Database=productos;Trusted_Connection=True;";
         bool nuevo;
         public frmnProductos()
         {
