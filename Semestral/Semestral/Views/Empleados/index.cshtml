@@ -1,0 +1,117 @@
+﻿@{
+    ViewBag.Title = "Empleados";
+}
+<h2>Gestión de Empleados</h2>
+
+<div class="mb-3">
+    <h4>Nuevo empleado</h4>
+    <input id="nombre" placeholder="Nombre" class="form-control" />
+    <input id="salario" placeholder="Salario por hora" type="number" step="0.01" class="form-control mt-1" />
+    <button id="btnAgregar" class="btn btn-success mt-2">Agregar</button>
+</div>
+
+<h4>Empleados</h4>
+<table class="table" id="tablaEmpleados">
+    <thead><tr><th>ID</th><th>Nombre</th><th>Salario/hr</th><th>Horas</th><th>Acciones</th></tr></thead>
+    <tbody></tbody>
+</table>
+
+<!-- Modal simple para editar -->
+<div id="editarModal" style="display:none;">
+    <input id="editId" type="hidden" />
+    <input id="editNombre" class="form-control" placeholder="Nombre" />
+    <input id="editSalario" class="form-control" placeholder="Salario por hora" type="number" step="0.01" />
+    <button id="saveEdit" class="btn btn-primary mt-1">Guardar</button>
+    <button onclick="cerrarModal()" class="btn btn-secondary mt-1">Cancelar</button>
+</div>
+
+<script>
+    const baseUrl = '';
+
+    async function cargarEmpleados() {
+        const r = await fetch(baseUrl + '/api/empleados');
+        const arr = await r.json();
+        const tbody = document.querySelector('#tablaEmpleados tbody');
+        tbody.innerHTML = '';
+        arr.forEach(e => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${e.Id}</td>
+            <td>${e.Nombre}</td>
+            <td>${e.SalarioPorHora.toFixed(2)}</td>
+            <td>${e.HorasTrabajadas}</td>
+            <td>
+                <button class="btn btn-sm btn-primary" onclick="abrirEditar(${e.Id}, '${escapeHtml(e.Nombre)}', ${e.SalarioPorHora})">Editar</button>
+                <input id="h${e.Id}" style="width:80px" placeholder="horas" />
+                <button class="btn btn-sm btn-info" onclick="actualizarHoras(${e.Id})">Set Horas</button>
+                <button class="btn btn-sm btn-success" onclick="pagar(${e.Id})">Pagar</button>
+            </td>`;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+    }
+
+    document.getElementById('btnAgregar').addEventListener('click', async () => {
+        const nombre = document.getElementById('nombre').value;
+        const salario = parseFloat(document.getElementById('salario').value || 0);
+        if (!nombre) { alert('Nombre requerido'); return; }
+        await fetch(baseUrl + '/api/empleados', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ Nombre: nombre, SalarioPorHora: salario, HorasTrabajadas: 0 })
+        });
+        document.getElementById('nombre').value = '';
+        document.getElementById('salario').value = '';
+        await cargarEmpleados();
+    });
+
+    function abrirEditar(id, nombre, salario) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editNombre').value = nombre;
+        document.getElementById('editSalario').value = salario;
+        document.getElementById('editarModal').style.display = 'block';
+    }
+
+    function cerrarModal() {
+        document.getElementById('editarModal').style.display = 'none';
+    }
+
+    document.getElementById('saveEdit').addEventListener('click', async () => {
+        const id = parseInt(document.getElementById('editId').value);
+        const nombre = document.getElementById('editNombre').value;
+        const salario = parseFloat(document.getElementById('editSalario').value || 0);
+        await fetch(baseUrl + '/api/empleados', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ Id: id, Nombre: nombre, SalarioPorHora: salario })
+        });
+        cerrarModal();
+        await cargarEmpleados();
+    });
+
+    async function actualizarHoras(id) {
+        const val = parseFloat(document.getElementById('h' + id).value || 0);
+        await fetch(baseUrl + '/api/empleados/' + id + '/horas', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(val)
+        });
+        await cargarEmpleados();
+    }
+
+    async function pagar(id) {
+        const r = await fetch(baseUrl + '/api/pagos/pagar?empleadoId=' + id, { method: 'POST' });
+        const txt = await r.json().catch(() => null);
+        if (!r.ok) {
+            alert(txt ? txt : 'Error al pagar');
+        } else {
+            alert('Pago realizado: ' + (txt.monto || ''));
+        }
+        await cargarEmpleados();
+    }
+
+    window.onload = cargarEmpleados;
+</script>

@@ -1,0 +1,50 @@
+﻿<h2>Panel de Contabilidad</h2>
+
+<ul>
+    <li><b>Ingresos:</b> <span id="ingresos">0</span></li>
+    <li><b>Gastos:</b> <span id="gastos">0</span></li>
+    <li><b>Fondos:</b> <span id="fondos">0</span></li>
+    <li><b>Meta mensual:</b> <span id="meta">0</span></li>
+</ul>
+
+<hr />
+
+<h4>Fijar / actualizar meta mensual</h4>
+<input id="metaInput" type="number" step="0.01" class="form-control" style="max-width:200px;" />
+<button id="btnMeta" class="btn btn-primary mt-2">Guardar meta</button>
+
+<script>
+    async function cargarContabilidad() {
+        const r = await fetch('/api/contabilidad');
+        const d = await r.json();
+
+        document.getElementById('ingresos').innerText = d.Ingresos.toFixed(2);
+        document.getElementById('gastos').innerText = d.Gastos.toFixed(2);
+        document.getElementById('fondos').innerText = d.Fondos.toFixed(2);
+    }
+
+    async function cargarEmpresa() {
+        const r = await fetch('/api/empresa');
+        const e = await r.json();
+
+        document.getElementById('meta').innerText = e.MetaMensual.toFixed(2);
+        document.getElementById('metaInput').value = e.MetaMensual;
+    }
+
+    document.getElementById('btnMeta').addEventListener('click', async () => {
+        const meta = parseFloat(document.getElementById('metaInput').value || 0);
+
+        await fetch('/api/empresa/meta', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(meta)
+        });
+
+        await cargarEmpresa();
+    });
+
+    window.onload = async () => {
+        await cargarContabilidad();
+        await cargarEmpresa();
+    };
+</script>

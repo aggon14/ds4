@@ -1,0 +1,57 @@
+﻿<h2>Ventas</h2>
+
+<input id="monto" placeholder="Monto" type="number">
+<br>
+<input id="empleadoId" placeholder="ID Empleado (opcional)" type="number">
+<br>
+<button onclick="agregarVenta()">Registrar Venta</button>
+
+<h3>Lista de Ventas</h3>
+<table id="tabla" border="1">
+    <tr>
+        <th>ID</th>
+        <th>Fecha</th>
+        <th>Monto</th>
+        <th>Empleado</th>
+    </tr>
+</table>
+
+<script>
+function cargarVentas() {
+    fetch("/api/ventas")
+    .then(r => r.json())
+    .then(data => {
+        let t = document.getElementById("tabla");
+        t.innerHTML = `
+        <tr>
+            <th>ID</th><th>Fecha</th><th>Monto</th><th>Empleado</th>
+        </tr>`;
+
+        data.forEach(v => {
+            t.innerHTML += `
+            <tr>
+                <td>${v.Id}</td>
+                <td>${v.Fecha}</td>
+                <td>${v.Monto}</td>
+                <td>${v.EmpleadoId}</td>
+            </tr>`;
+        });
+    });
+}
+
+function agregarVenta() {
+    let venta = {
+        Monto: parseFloat(document.getElementById("monto").value),
+        EmpleadoId: parseInt(document.getElementById("empleadoId").value)
+    };
+
+    fetch("/api/ventas", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(venta)
+    })
+    .then(() => cargarVentas());
+}
+
+cargarVentas();
+</script>

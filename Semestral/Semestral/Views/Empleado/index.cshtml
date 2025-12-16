@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "Empleados";
+}
+
+<h2>Gestión de Empleados</h2>
+
+<div class="mb-3">
+    <h4>Nuevo empleado</h4>
+    <input id="nombre" placeholder="Nombre" class="form-control" />
+    <input id="salario" placeholder="Salario por hora" type="number" step="0.01" class="form-control mt-1" />
+    <button id="btnAgregar" class="btn btn-success mt-2">Agregar</button>
+</div>
+
+<h4>Empleados</h4>
+
+<table class="table" id="tablaEmpleados">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Salario / Hora</th>
+            <th>Horas</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    async function cargarEmpleados() {
+        const r = await fetch('/api/empleado', { cache: 'no-store' });
+        const arr = await r.json();
+
+        const tbody = document.querySelector('#tablaEmpleados tbody');
+        tbody.innerHTML = '';
+
+        arr.forEach(e => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${e.Id}</td>
+                <td>${e.Nombre}</td>
+                <td>${e.SalarioPorHora.toFixed(2)}</td>
+                <td>${e.HorasTrabajadas}</td>
+                <td>
+                    <input id="h${e.Id}" type="number" style="width:70px" placeholder="Horas" />
+                    <button class="btn btn-sm btn-info"
+                            onclick="actualizarHoras(${e.Id})">Horas</button>
+
+                    <button class="btn btn-sm btn-success"
+                            onclick="pagar(${e.Id})">Pagar</button>
+
+                    <button class="btn btn-sm btn-danger"
+                            onclick="eliminar(${e.Id})">Eliminar</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    document.getElementById('btnAgregar').addEventListener('click', async () => {
+        const nombre = document.getElementById('nombre').value.trim();
+        const salario = parseFloat(document.getElementById('salario').value || 0);
+
+        if (!nombre) {
+            alert('Nombre requerido');
+            return;
+        }
+
+        await fetch('/api/empleado', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                Nombre: nombre,
+                SalarioPorHora: salario,
+                HorasTrabajadas: 0
+            })
+        });
+
+        document.getElementById('nombre').value = '';
+        document.getElementById('salario').value = '';
+
+        await cargarEmpleados();
+    });
+
+    async function actualizarHoras(id) {
+        const horas = parseFloat(document.getElementById('h' + id).value || 0);
+
+        await fetch('/api/empleado/' + id + '/horas', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(horas)
+        });
+
+        await cargarEmpleados();
+    }
+
+    async function eliminar(id) {
+        if (!confirm('¿Eliminar este empleado?')) return;
+
+        const r = await fetch('/api/empleado/' + id, {
+            method: 'DELETE'
+        });
+
+        if (!r.ok) {
+            alert('Error al eliminar');
+            return;
+        }
+
+        await cargarEmpleados();
+    }
+
+    async function pagar(id) {
+        const r = await fetch('/api/pagos/pagar?empleadoId=' + id, {
+            method: 'POST'
+        });
+
+        if (!r.ok) {
+            const error = await r.text();
+            alert(error);
+            return;
+        }
+
+        const data = await r.json(); 
+
+        alert('Pago realizado: $' + data.monto.toFixed(2));
+
+        await cargarEmpleados();
+    }
+
+    window.onload = cargarEmpleados;
+</script>
